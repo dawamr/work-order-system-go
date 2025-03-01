@@ -97,6 +97,7 @@ func GenerateWorkOrderNumber() string {
 // @Failure 403 {object} ErrorResponse
 // @Router /work-orders [post]
 func CreateWorkOrder(c *fiber.Ctx) error {
+
 	// Only Production Manager can create work orders
 	role := c.Locals("role").(models.Role)
 	if role != models.RoleProductionManager {
@@ -108,6 +109,7 @@ func CreateWorkOrder(c *fiber.Ctx) error {
 
 	// Parse request body
 	var req CreateWorkOrderRequest
+
 	if err := c.BodyParser(&req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
 			Error: true,
@@ -115,6 +117,8 @@ func CreateWorkOrder(c *fiber.Ctx) error {
 		})
 	}
 
+	fmt.Println(c.BodyParser(&req))
+	fmt.Println(req)
 	// Check if operator exists
 	var operator models.User
 	result := database.DB.Where("id = ? AND role = ?", req.OperatorID, models.RoleOperator).First(&operator)
@@ -185,6 +189,9 @@ func GetWorkOrders(c *fiber.Ctx) error {
 	status := c.Query("status")
 	page := c.QueryInt("page", 1)
 	limit := c.QueryInt("limit", 10)
+	operatorID := c.QueryInt("operator_id", 0) // filter by work_orders.operator_id
+	search := c.Query("search") // search by work_orders.work_order_number, work_orders.product_name
+	deadline := c.Query("deadline") // filter by work_orders.production_deadline
 
 	// Calculate offset
 	offset := (page - 1) * limit
@@ -195,6 +202,23 @@ func GetWorkOrders(c *fiber.Ctx) error {
 	// Apply status filter if provided
 	if status != "" {
 		query = query.Where("status = ?", status)
+	}
+
+	// Apply operator filter if provided
+	if operatorID > 0 {
+		query = query.Where("operator_id = ?", operatorID)
+	}
+
+	// Apply search if provided
+	if search != "" {
+		query = query.Where("work_order_number LIKE ? OR product_name LIKE ?",
+			"%"+search+"%", "%"+search+"%")
+	}
+
+	// Apply deadline filter if provided
+	if deadline != "" {
+		// Assume deadline is in YYYY-MM-DD format
+		query = query.Where("DATE(production_deadline) = ?", deadline)
 	}
 
 	// Get total count
