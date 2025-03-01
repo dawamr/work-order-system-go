@@ -1,0 +1,813 @@
+basePath: /api
+definitions:
+  controllers.CreateProgressRequest:
+    properties:
+      progress_description:
+        type: string
+      progress_quantity:
+        minimum: 0
+        type: integer
+    required:
+    - progress_description
+    - progress_quantity
+    type: object
+  controllers.CreateWorkOrderRequest:
+    properties:
+      operator_id:
+        type: integer
+      product_name:
+        type: string
+      production_deadline:
+        type: string
+      quantity:
+        minimum: 1
+        type: integer
+    required:
+    - operator_id
+    - product_name
+    - production_deadline
+    - quantity
+    type: object
+  controllers.ErrorResponse:
+    properties:
+      error:
+        type: boolean
+      msg:
+        type: string
+    type: object
+  controllers.LoginRequest:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  controllers.LoginResponse:
+    properties:
+      error:
+        type: boolean
+      token:
+        type: string
+      user:
+        properties:
+          id:
+            type: integer
+          role:
+            $ref: '#/definitions/models.Role'
+          username:
+            type: string
+        type: object
+    type: object
+  controllers.OperatorPerformance:
+    properties:
+      assigned:
+        type: integer
+      completed:
+        type: integer
+      in_progress:
+        type: integer
+      operator_id:
+        type: integer
+      total_quantity:
+        type: integer
+      username:
+        type: string
+    type: object
+  controllers.PerformanceResponse:
+    properties:
+      error:
+        type: boolean
+      performances:
+        items:
+          $ref: '#/definitions/controllers.OperatorPerformance'
+        type: array
+    type: object
+  controllers.ProgressListResponse:
+    properties:
+      error:
+        type: boolean
+      progress:
+        items:
+          $ref: '#/definitions/models.WorkOrderProgress'
+        type: array
+    type: object
+  controllers.ProgressResponse:
+    properties:
+      error:
+        type: boolean
+      progress:
+        $ref: '#/definitions/models.WorkOrderProgress'
+    type: object
+  controllers.RegisterRequest:
+    properties:
+      password:
+        minLength: 6
+        type: string
+      role:
+        allOf:
+        - $ref: '#/definitions/models.Role'
+        enum:
+        - production_manager
+        - operator
+      username:
+        maxLength: 50
+        minLength: 3
+        type: string
+    required:
+    - password
+    - role
+    - username
+    type: object
+  controllers.RegisterResponse:
+    properties:
+      error:
+        type: boolean
+      token:
+        type: string
+      user:
+        properties:
+          id:
+            type: integer
+          role:
+            $ref: '#/definitions/models.Role'
+          username:
+            type: string
+        type: object
+    type: object
+  controllers.StatusHistoryResponse:
+    properties:
+      error:
+        type: boolean
+      history:
+        items:
+          $ref: '#/definitions/models.WorkOrderStatusHistory'
+        type: array
+    type: object
+  controllers.SummaryResponse:
+    properties:
+      error:
+        type: boolean
+      summary:
+        items:
+          $ref: '#/definitions/controllers.WorkOrderSummary'
+        type: array
+    type: object
+  controllers.UpdateWorkOrderRequest:
+    properties:
+      operator_id:
+        type: integer
+      product_name:
+        type: string
+      production_deadline:
+        type: string
+      quantity:
+        minimum: 1
+        type: integer
+      status:
+        $ref: '#/definitions/models.WorkOrderStatus'
+    type: object
+  controllers.UpdateWorkOrderStatusRequest:
+    properties:
+      quantity:
+        minimum: 0
+        type: integer
+      status:
+        allOf:
+        - $ref: '#/definitions/models.WorkOrderStatus'
+        enum:
+        - pending
+        - in_progress
+        - completed
+    required:
+    - status
+    type: object
+  controllers.WorkOrderListResponse:
+    properties:
+      error:
+        type: boolean
+      pagination:
+        properties:
+          limit:
+            type: integer
+          page:
+            type: integer
+          pages:
+            type: integer
+          total:
+            type: integer
+        type: object
+      work_orders:
+        items:
+          $ref: '#/definitions/models.WorkOrder'
+        type: array
+    type: object
+  controllers.WorkOrderResponse:
+    properties:
+      error:
+        type: boolean
+      work_order:
+        $ref: '#/definitions/models.WorkOrder'
+    type: object
+  controllers.WorkOrderSummary:
+    properties:
+      completed:
+        type: integer
+      count:
+        type: integer
+      quantity:
+        type: integer
+      status:
+        $ref: '#/definitions/models.WorkOrderStatus'
+    type: object
+  models.Role:
+    enum:
+    - production_manager
+    - operator
+    type: string
+    x-enum-varnames:
+    - RoleProductionManager
+    - RoleOperator
+  models.User:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      role:
+        $ref: '#/definitions/models.Role'
+      updated_at:
+        type: string
+      username:
+        type: string
+    type: object
+  models.WorkOrder:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      operator:
+        $ref: '#/definitions/models.User'
+      operator_id:
+        type: integer
+      product_name:
+        type: string
+      production_deadline:
+        type: string
+      quantity:
+        type: integer
+      status:
+        $ref: '#/definitions/models.WorkOrderStatus'
+      updated_at:
+        type: string
+      work_order_number:
+        type: string
+    type: object
+  models.WorkOrderProgress:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      progress_description:
+        type: string
+      progress_quantity:
+        type: integer
+      updated_at:
+        type: string
+      work_order:
+        $ref: '#/definitions/models.WorkOrder'
+      work_order_id:
+        type: integer
+    type: object
+  models.WorkOrderStatus:
+    enum:
+    - pending
+    - in_progress
+    - completed
+    type: string
+    x-enum-varnames:
+    - StatusPending
+    - StatusInProgress
+    - StatusCompleted
+  models.WorkOrderStatusHistory:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      quantity:
+        type: integer
+      status:
+        $ref: '#/definitions/models.WorkOrderStatus'
+      updated_at:
+        type: string
+      work_order:
+        $ref: '#/definitions/models.WorkOrder'
+      work_order_id:
+        type: integer
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: your.email@example.com
+    name: API Support
+  description: This is the API documentation for the Work Order System
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  termsOfService: http://swagger.io/terms/
+  title: Work Order System API
+  version: "1.0"
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate user and return JWT token
+      parameters:
+      - description: Login credentials
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.LoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+      summary: Login user
+      tags:
+      - auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user and return JWT token
+      parameters:
+      - description: Registration details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/controllers.RegisterResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+      summary: Register new user
+      tags:
+      - auth
+  /reports/operators:
+    get:
+      consumes:
+      - application/json
+      description: Get performance metrics for operators (Production Manager only)
+      parameters:
+      - description: Start date (YYYY-MM-DD)
+        in: query
+        name: start_date
+        type: string
+      - description: End date (YYYY-MM-DD)
+        in: query
+        name: end_date
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.PerformanceResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get operator performance
+      tags:
+      - reports
+  /reports/summary:
+    get:
+      consumes:
+      - application/json
+      description: Get a summary report of work orders by status (Production Manager
+        only)
+      parameters:
+      - description: Start date (YYYY-MM-DD)
+        in: query
+        name: start_date
+        type: string
+      - description: End date (YYYY-MM-DD)
+        in: query
+        name: end_date
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.SummaryResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get work order summary
+      tags:
+      - reports
+  /work-orders:
+    get:
+      consumes:
+      - application/json
+      description: Get a paginated list of all work orders (Production Manager only)
+      parameters:
+      - description: 'Page number (default: 1)'
+        in: query
+        name: page
+        type: integer
+      - description: 'Items per page (default: 10)'
+        in: query
+        name: limit
+        type: integer
+      - description: Filter by status (pending/in_progress/completed)
+        in: query
+        name: status
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.WorkOrderListResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get all work orders
+      tags:
+      - work-orders
+    post:
+      consumes:
+      - application/json
+      description: Create a new work order (Production Manager only)
+      parameters:
+      - description: Work order details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.CreateWorkOrderRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/controllers.WorkOrderResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create work order
+      tags:
+      - work-orders
+  /work-orders/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get a work order by its ID
+      parameters:
+      - description: Work order ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.WorkOrderResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get work order by ID
+      tags:
+      - work-orders
+    put:
+      consumes:
+      - application/json
+      description: Update a work order (Production Manager only)
+      parameters:
+      - description: Work order ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Work order update details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.UpdateWorkOrderRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.WorkOrderResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update work order
+      tags:
+      - work-orders
+  /work-orders/{id}/history:
+    get:
+      consumes:
+      - application/json
+      description: Get the status history for a work order
+      parameters:
+      - description: Work order ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.StatusHistoryResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get work order status history
+      tags:
+      - progress
+  /work-orders/{id}/progress:
+    get:
+      consumes:
+      - application/json
+      description: Get all progress entries for a work order
+      parameters:
+      - description: Work order ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.ProgressListResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get work order progress
+      tags:
+      - progress
+    post:
+      consumes:
+      - application/json
+      description: Create a new progress entry for a work order
+      parameters:
+      - description: Work order ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Progress details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.CreateProgressRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/controllers.ProgressResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create progress entry
+      tags:
+      - progress
+  /work-orders/{id}/status:
+    put:
+      consumes:
+      - application/json
+      description: Update a work order status (Operator only)
+      parameters:
+      - description: Work order ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Status update details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.UpdateWorkOrderStatusRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.WorkOrderResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update work order status
+      tags:
+      - work-orders
+  /work-orders/assigned:
+    get:
+      consumes:
+      - application/json
+      description: Get work orders assigned to the current operator
+      parameters:
+      - description: 'Page number (default: 1)'
+        in: query
+        name: page
+        type: integer
+      - description: 'Items per page (default: 10)'
+        in: query
+        name: limit
+        type: integer
+      - description: Filter by status (pending/in_progress/completed)
+        in: query
+        name: status
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.WorkOrderListResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get assigned work orders
+      tags:
+      - work-orders
+schemes:
+- http
+- https
+securityDefinitions:
+  BearerAuth:
+    description: Type "Bearer" followed by a space and JWT token.
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
