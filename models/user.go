@@ -23,7 +23,7 @@ type User struct {
 	ID        uint           `gorm:"primaryKey" json:"id"`
 	Username  string         `gorm:"size:50;uniqueIndex;not null" json:"username"`
 	Password  string         `gorm:"size:100;not null" json:"-"` // Password is not exposed in JSON
-	Role      Role           `gorm:"size:20;not null" json:"role"`
+	Role      Role           `gorm:"size:20;not null;index" json:"role"`
 	CreatedAt time.Time      `json:"created_at"`
 	UpdatedAt time.Time      `json:"updated_at"`
 	DeletedAt gorm.DeletedAt `gorm:"index" json:"-"`
