@@ -43,16 +43,39 @@ func ConnectDB() {
 func MigrateDB() {
 	log.Println("Running database migrations...")
 
+	// Drop existing foreign key constraints if any
+	DB.Exec(`ALTER TABLE audit_logs DROP CONSTRAINT IF EXISTS fk_audit_logs_user`)
+
 	// Auto migrate models
 	err := DB.AutoMigrate(
 		&models.User{},
 		&models.WorkOrder{},
 		&models.WorkOrderProgress{},
 		&models.WorkOrderStatusHistory{},
+		&models.AuditLog{},
 	)
 
 	if err != nil {
 		log.Fatalf("Failed to migrate database: %v", err)
+	}
+
+	// Check if constraint exists before adding it
+	var constraintExists int64
+	DB.Raw(`
+		SELECT COUNT(1)
+		FROM information_schema.table_constraints
+		WHERE constraint_name = 'fk_audit_logs_user'
+		AND table_name = 'audit_logs'
+	`).Scan(&constraintExists)
+
+	// Only add constraint if it doesn't exist
+	if constraintExists == 0 {
+		DB.Exec(`ALTER TABLE audit_logs
+			ADD CONSTRAINT fk_audit_logs_user
+			FOREIGN KEY (user_id)
+			REFERENCES users(id)
+			ON DELETE RESTRICT
+			ON UPDATE CASCADE`)
 	}
 
 	log.Println("Database migration completed")
