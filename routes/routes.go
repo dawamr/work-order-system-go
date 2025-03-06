@@ -17,6 +17,10 @@ func SetupRoutes(app *fiber.App) {
 	// Protected routes
 	api := app.Group("/api", middleware.Protected())
 
+	// Api for list all operators
+	operators := api.Group("/operators")
+	operators.Get("/", controllers.GetOperators)
+
 	// Work Order routes
 	workOrders := api.Group("/work-orders")
 
@@ -29,6 +33,11 @@ func SetupRoutes(app *fiber.App) {
 	workOrders.Post("/", middleware.RoleAuthorization(models.RoleProductionManager), controllers.CreateWorkOrder)
 	workOrders.Get("/", middleware.RoleAuthorization(models.RoleProductionManager), controllers.GetWorkOrders)
 	workOrders.Put("/:id", middleware.RoleAuthorization(models.RoleProductionManager), controllers.UpdateWorkOrder)
+	workOrders.Get("/:id", middleware.RoleAuthorization(models.RoleProductionManager), controllers.GetWorkOrderByID)
+	workOrders.Delete("/:id", middleware.RoleAuthorization(models.RoleProductionManager), controllers.DeleteWorkOrder)
+	// Work order logs
+	workOrders.Get("/:id/logs", middleware.RoleAuthorization(models.RoleProductionManager), controllers.GetWorkOrderLogs)
+	workOrders.Post("/:id/logs", middleware.RoleAuthorization(models.RoleProductionManager), controllers.CreateWorkOrderLog)
 
 	// Routes for Operator only
 	workOrders.Get("/assigned", middleware.RoleAuthorization(models.RoleOperator), controllers.GetAssignedWorkOrders)
@@ -39,4 +48,8 @@ func SetupRoutes(app *fiber.App) {
 	reports := api.Group("/reports", middleware.RoleAuthorization(models.RoleProductionManager))
 	reports.Get("/summary", controllers.GetWorkOrderSummary)
 	reports.Get("/operators", controllers.GetOperatorPerformance)
+
+	// Audit log routes (Production Manager only)
+	auditLogs := api.Group("/audit-logs", middleware.RoleAuthorization(models.RoleProductionManager))
+	auditLogs.Get("/", controllers.GetAuditLogs)
 }
