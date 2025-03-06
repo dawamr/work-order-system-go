@@ -28,6 +28,3 @@ services:
     ports:
       - '5533:8080'
     restart: always
-
-volumes:
-  mysql_data:
