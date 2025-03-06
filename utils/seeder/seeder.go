@@ -97,7 +97,7 @@ func seedUsers() {
 	// Buat Production Manager
 	productionManager := models.User{
 		Username: "manager",
-		Password: hashPassword("password"),
+		Password: "password",
 		Role:     models.RoleProductionManager,
 	}
 	database.DB.Create(&productionManager)
@@ -107,7 +107,7 @@ func seedUsers() {
 	for i := 1; i <= UserCount; i++ {
 		operator := models.User{
 			Username: fmt.Sprintf("operator%d", i),
-			Password: hashPassword("password"),
+			Password: "password",
 			Role:     models.RoleOperator,
 		}
 		database.DB.Create(&operator)
