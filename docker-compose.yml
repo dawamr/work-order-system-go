@@ -28,3 +28,7 @@ services:
     ports:
       - '5533:8080'
     restart: always
+
+networks:
+  app-network:
+    driver: bridge
