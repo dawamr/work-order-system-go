@@ -18,15 +18,8 @@ services:
       dockerfile: Dockerfile
     depends_on:
       - postgre
-    environment:
-      DB_HOST: host.docker.internal
-      DB_PORT: 5432
-      DB_USER: 'dawamr'
-      DB_PASSWORD: 'dawamr'
-      DB_NAME: 'workorder-tsp'
-      JWT_SECRET: 'DAWAMRAJA'
-      TOKEN_EXPIRES_IN: '24h'
-      PORT: '8080'
+    env_file:
+      - .env
     ports:
       - '5533:8080'
     restart: always
