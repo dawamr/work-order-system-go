@@ -1,5 +1,5 @@
 services:
-  postgre:
+  workorder-db:
     image: postgres:17-alpine
     volumes:
       - ./postgresql:/var/lib/postgresql/data
@@ -9,23 +9,18 @@ services:
       POSTGRES_USER: dawamr
       POSTGRES_PASSWORD: dawamr
       POSTGRES_DB: 'workorder-tsp'
-    networks:
-      - workorder-network
 
-  go-appcv:
+  workorder-api:
     build:
       context: .
       dockerfile: Dockerfile
     depends_on:
-      - postgre
-    env_file:
-      - .env
+      - workorder-db
+    environment:
+      DB_HOST: workorder-db
+      DB_USER: 'dawamr'
+      DB_PASSWORD: 'dawamr'
+      DB_NAME: 'workorder-tsp'
     ports:
       - '5533:8080'
     restart: always
-    networks:
-      - workorder-network
-
-networks:
-  workorder-network:
-    driver: bridge
