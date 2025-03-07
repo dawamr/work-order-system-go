@@ -9,6 +9,8 @@ services:
       POSTGRES_USER: dawamr
       POSTGRES_PASSWORD: dawamr
       POSTGRES_DB: 'workorder-tsp'
+    networks:
+      - workorder-network
 
   go-appcv:
     build:
@@ -28,7 +30,9 @@ services:
     ports:
       - '5533:8080'
     restart: always
+    networks:
+      - workorder-network
 
 networks:
-  app-network:
+  workorder-network:
     driver: bridge
