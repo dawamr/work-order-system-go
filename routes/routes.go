@@ -24,25 +24,25 @@ func SetupRoutes(app *fiber.App) {
 	// Work Order routes
 	workOrders := api.Group("/work-orders")
 
-	// Routes for both Production Manager and Operator
+	// Definisikan route statis terlebih dahulu
+	workOrders.Get("/assigned", middleware.RoleAuthorization(models.RoleOperator), controllers.GetAssignedWorkOrders)
+
+	// Kemudian definisikan route dengan parameter
 	workOrders.Get("/:id", controllers.GetWorkOrderByID)
 	workOrders.Get("/:id/progress", controllers.GetWorkOrderProgress)
-	workOrders.Get("/:id/history", controllers.GetWorkOrderStatusHistory)
 
 	// Routes for Production Manager only
 	workOrders.Post("/", middleware.RoleAuthorization(models.RoleProductionManager), controllers.CreateWorkOrder)
 	workOrders.Get("/", middleware.RoleAuthorization(models.RoleProductionManager), controllers.GetWorkOrders)
 	workOrders.Put("/:id", middleware.RoleAuthorization(models.RoleProductionManager), controllers.UpdateWorkOrder)
-	workOrders.Get("/:id", middleware.RoleAuthorization(models.RoleProductionManager), controllers.GetWorkOrderByID)
 	workOrders.Delete("/:id", middleware.RoleAuthorization(models.RoleProductionManager), controllers.DeleteWorkOrder)
 	// Work order logs
-	workOrders.Get("/:id/logs", middleware.RoleAuthorization(models.RoleProductionManager), controllers.GetWorkOrderLogs)
-	workOrders.Post("/:id/logs", middleware.RoleAuthorization(models.RoleProductionManager), controllers.CreateWorkOrderLog)
+	workOrders.Get("/:id/logs", controllers.GetWorkOrderLogs)
+	workOrders.Post("/:id/logs", controllers.CreateWorkOrderLog)
 
 	// Routes for Operator only
-	workOrders.Get("/assigned", middleware.RoleAuthorization(models.RoleOperator), controllers.GetAssignedWorkOrders)
-	workOrders.Put("/:id/status", controllers.UpdateWorkOrderStatus)
-	workOrders.Post("/:id/progress", controllers.CreateWorkOrderProgress)
+	workOrders.Put("/:id/status", middleware.RoleAuthorization(models.RoleOperator), controllers.UpdateWorkOrderStatus)
+	workOrders.Post("/:id/progress", middleware.RoleAuthorization(models.RoleOperator), controllers.CreateWorkOrderProgress)
 
 	// Report routes (Production Manager only)
 	reports := api.Group("/reports", middleware.RoleAuthorization(models.RoleProductionManager))
