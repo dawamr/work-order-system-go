@@ -3,6 +3,7 @@ package controllers
 import (
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/dawamr/work-order-system-go/database"
@@ -222,8 +223,13 @@ func GetWorkOrders(c *fiber.Ctx) error {
 
 	// Apply search if provided
 	if search != "" {
-		query = query.Where("work_order_number LIKE ? OR product_name LIKE ?",
-			"%"+search+"%", "%"+search+"%")
+		// search with UPPERCASE
+		search = strings.ToUpper(search)
+		if strings.HasPrefix(search, "WO-") {
+			query = query.Where("UPPER(work_order_number) LIKE ?", "%"+search+"%")
+		} else {
+			query = query.Where("UPPER(product_name) LIKE ?", "%"+search+"%")
+		}
 	}
 
 	// Apply deadline filter if provided
@@ -238,7 +244,7 @@ func GetWorkOrders(c *fiber.Ctx) error {
 
 	// Get work orders with pagination
 	var workOrders []models.WorkOrder
-	result := query.Offset(offset).Limit(limit).Order("created_at DESC").Find(&workOrders)
+	result := query.Offset(offset).Limit(limit).Order("work_order_number DESC").Find(&workOrders)
 	if result.Error != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
 			Error: true,
