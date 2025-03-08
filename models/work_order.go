@@ -23,7 +23,8 @@ type WorkOrder struct {
 	ID                 uint            `gorm:"primaryKey" json:"id"`
 	WorkOrderNumber    string          `gorm:"size:20;uniqueIndex;not null" json:"work_order_number"`
 	ProductName        string          `gorm:"size:100;not null" json:"product_name"`
-	Quantity           int             `gorm:"not null" json:"quantity"`
+	Quantity           int             `gorm:"not null;default:0" json:"quantity"`
+	TargetQuantity     int             `gorm:"not null;default:0" json:"target_quantity"`
 	ProductionDeadline time.Time       `json:"production_deadline"`
 	Status             WorkOrderStatus `gorm:"size:20;not null;default:'pending'" json:"status"`
 	OperatorID         uint            `json:"operator_id"`
@@ -37,8 +38,7 @@ type WorkOrder struct {
 type WorkOrderProgress struct {
 	ID               uint           `gorm:"primaryKey" json:"id"`
 	WorkOrderID      uint           `gorm:"not null" json:"work_order_id"`
-	WorkOrder        WorkOrder      `gorm:"foreignKey:WorkOrderID" json:"work_order"`
-	ProgressDesc     string         `gorm:"size:500;not null" json:"progress_description"`
+	ProgressDesc     string         `gorm:"size:500;not null" json:"progress_desc"`
 	ProgressQuantity int            `json:"progress_quantity"`
 	CreatedAt        time.Time      `json:"created_at"`
 	UpdatedAt        time.Time      `json:"updated_at"`
