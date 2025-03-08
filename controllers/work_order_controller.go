@@ -18,7 +18,8 @@ var auditService = services.AuditLogService{}
 // CreateWorkOrderRequest represents the create work order request body
 type CreateWorkOrderRequest struct {
 	ProductName        string    `json:"product_name" validate:"required"`
-	Quantity           int       `json:"quantity" validate:"required,min=1"`
+	Quantity           int       `json:"quantity" validate:"required,min=0"`
+	TargetQuantity     int       `json:"target_quantity" validate:"required,min=1"`
 	ProductionDeadline time.Time `json:"production_deadline" validate:"required"`
 	OperatorID         uint      `json:"operator_id" validate:"required"`
 }
@@ -26,7 +27,8 @@ type CreateWorkOrderRequest struct {
 // UpdateWorkOrderRequest represents the update work order request body
 type UpdateWorkOrderRequest struct {
 	ProductName        string             `json:"product_name"`
-	Quantity           int                `json:"quantity" validate:"omitempty,min=1"`
+	Quantity           int                `json:"quantity" validate:"omitempty,min=0"`
+	TargetQuantity     int                `json:"target_quantity" validate:"omitempty,min=1"`
 	ProductionDeadline time.Time          `json:"production_deadline"`
 	Status             models.WorkOrderStatus `json:"status"`
 	OperatorID         uint               `json:"operator_id"`
@@ -36,6 +38,7 @@ type UpdateWorkOrderRequest struct {
 type UpdateWorkOrderStatusRequest struct {
 	Status   models.WorkOrderStatus `json:"status" validate:"required,oneof=pending in_progress completed"`
 	Quantity int                `json:"quantity" validate:"omitempty,min=0"`
+	Description string             `json:"description"`
 }
 
 // WorkOrderResponse represents a work order response
@@ -149,6 +152,7 @@ func CreateWorkOrder(c *fiber.Ctx) error {
 		WorkOrderNumber:    workOrderNumber,
 		ProductName:        req.ProductName,
 		Quantity:           req.Quantity,
+		TargetQuantity:     req.TargetQuantity,
 		ProductionDeadline: req.ProductionDeadline,
 		Status:             models.StatusPending,
 		OperatorID:         req.OperatorID,
@@ -286,16 +290,37 @@ func GetAssignedWorkOrders(c *fiber.Ctx) error {
 	status := c.Query("status")
 	page := c.QueryInt("page", 1)
 	limit := c.QueryInt("limit", 10)
+	search := c.Query("search") // search by work_orders.work_order_number, work_orders.product_name
+	deadline := c.Query("deadline") // filter by work_orders.production_deadline
 
 	// Calculate offset
 	offset := (page - 1) * limit
 
-	// Build query
-	query := database.DB.Model(&models.WorkOrder{}).Where("operator_id = ?", userID)
+	// Build query - Perbaikan: gunakan Where setelah Model
+	query := database.DB.Model(&models.WorkOrder{}).
+		Preload("Operator").
+		Where("operator_id = ?", userID) // Hanya sekali filter operator_id
 
 	// Apply status filter if provided
 	if status != "" {
 		query = query.Where("status = ?", status)
+	}
+
+	// Apply search if provided
+	if search != "" {
+		// search with UPPERCASE
+		search = strings.ToUpper(search)
+		if strings.HasPrefix(search, "WO-") {
+			query = query.Where("UPPER(work_order_number) LIKE ?", "%"+search+"%")
+		} else {
+			query = query.Where("UPPER(product_name) LIKE ?", "%"+search+"%")
+		}
+	}
+
+	// Apply deadline filter if provided
+	if deadline != "" {
+		// Assume deadline is in YYYY-MM-DD format
+		query = query.Where("DATE(production_deadline) = ?", deadline)
 	}
 
 	// Get total count
@@ -304,7 +329,7 @@ func GetAssignedWorkOrders(c *fiber.Ctx) error {
 
 	// Get work orders with pagination
 	var workOrders []models.WorkOrder
-	result := query.Offset(offset).Limit(limit).Order("created_at DESC").Find(&workOrders)
+	result := query.Offset(offset).Limit(limit).Order("work_order_number DESC").Find(&workOrders)
 	if result.Error != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
 			Error: true,
@@ -425,6 +450,9 @@ func UpdateWorkOrder(c *fiber.Ctx) error {
 	}
 	if req.Quantity > 0 {
 		workOrder.Quantity = req.Quantity
+	}
+	if req.TargetQuantity > 0 {
+		workOrder.TargetQuantity = req.TargetQuantity
 	}
 	if !req.ProductionDeadline.IsZero() {
 		workOrder.ProductionDeadline = req.ProductionDeadline
@@ -553,6 +581,21 @@ func UpdateWorkOrderStatus(c *fiber.Ctx) error {
 		})
 	}
 
+
+	workOrderProgress := models.WorkOrderProgress{
+		WorkOrderID: workOrder.ID,
+		ProgressDesc: req.Description,
+		ProgressQuantity: req.Quantity,
+	}
+	if err := database.DB.Create(&workOrderProgress).Error; err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
+			Error: true,
+			Msg:   "Error creating work order progress",
+		})
+	}
+
+
+
 	// Create audit log after successful update
 	if err := auditService.CreateLog(
 		userID,
@@ -568,6 +611,20 @@ func UpdateWorkOrderStatus(c *fiber.Ctx) error {
 	); err != nil {
 		log.Printf("Error creating audit log: %v", err)
 	}
+
+	// audit log work order progress
+	if err := auditService.CreateLog(
+		userID,
+		models.ActionCreate,
+		"WorkOrderProgress",
+		workOrderProgress.ID,
+		nil,
+		workOrderProgress,
+		fmt.Sprintf("Work order %s progress created", workOrder.WorkOrderNumber),
+	); err != nil {
+		log.Printf("Error creating audit log: %v", err)
+	}
+
 
 	// Return updated work order
 	return c.Status(fiber.StatusOK).JSON(WorkOrderResponse{
