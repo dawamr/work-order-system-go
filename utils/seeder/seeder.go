@@ -15,16 +15,16 @@ import (
 const (
 	// Jumlah data yang akan dibuat
 	UserCount        = 10
-	WorkOrderCount   = 200
-	ProgressCount    = 500
+	WorkOrderCount   = 2000
+	ProgressCount    = 200
 	StatusHistoryMin = 1
 	StatusHistoryMax = 3
 )
 
 // Rentang tanggal untuk data
 var (
-	startDate = time.Date(2025, 2, 1, 0, 0, 0, 0, time.UTC)
-	endDate   = time.Date(2025, 3, 10, 23, 59, 59, 0, time.UTC)
+	startDate = time.Date(2025, 1, 2, 0, 0, 0, 0, time.UTC)
+	endDate   = time.Date(2025, 2, 28, 23, 59, 59, 0, time.UTC)
 )
 
 // Daftar nama produk untuk data dummy
