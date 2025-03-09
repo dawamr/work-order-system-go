@@ -23,8 +23,8 @@ const (
 
 // Rentang tanggal untuk data
 var (
-	startDate = time.Date(2025, 2, 1, 0, 0, 0, 0, time.UTC)
-	endDate   = time.Date(2025, 2, 28, 23, 59, 59, 0, time.UTC)
+	startDate = time.Date(2025, 4, 1, 0, 0, 0, 0, time.UTC)
+	endDate   = time.Date(2025, 5, 31, 23, 59, 59, 0, time.UTC)
 )
 
 // Daftar nama produk untuk data dummy
@@ -156,10 +156,12 @@ func seedWorkOrders() {
 		productName := productNames[rand.Intn(len(productNames))]
 
 		// Buat work order
+		targetQuantity := rand.Intn(100) + 1 // 1-100
 		workOrder := models.WorkOrder{
 			WorkOrderNumber:    workOrderNumber,
 			ProductName:        productName,
-			Quantity:           rand.Intn(100) + 1, // 1-100
+			TargetQuantity:     targetQuantity,
+			Quantity:           rand.Intn(targetQuantity),
 			ProductionDeadline: productionDeadline,
 			Status:             status,
 			OperatorID:         operator.ID,
