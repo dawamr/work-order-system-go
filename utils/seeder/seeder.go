@@ -23,8 +23,8 @@ const (
 
 // Rentang tanggal untuk data
 var (
-	startDate = time.Date(2025, 4, 1, 0, 0, 0, 0, time.UTC)
-	endDate   = time.Date(2025, 5, 31, 23, 59, 59, 0, time.UTC)
+	startDate = time.Date(2025, 2, 1, 0, 0, 0, 0, time.UTC)
+	endDate   = time.Date(2025, 3, 10, 23, 59, 59, 0, time.UTC)
 )
 
 // Daftar nama produk untuk data dummy
