@@ -41,8 +41,8 @@ func SetupRoutes(app *fiber.App) {
 	workOrders.Post("/:id/logs", controllers.CreateWorkOrderLog)
 
 	// Routes for Operator only
-	workOrders.Put("/:id/status", middleware.RoleAuthorization(models.RoleOperator), controllers.UpdateWorkOrderStatus)
-	workOrders.Post("/:id/progress", middleware.RoleAuthorization(models.RoleOperator), controllers.CreateWorkOrderProgress)
+	workOrders.Put("/:id/status", controllers.UpdateWorkOrderStatus)
+	workOrders.Post("/:id/progress", controllers.CreateWorkOrderProgress)
 
 	// Report routes (Production Manager only)
 	reports := api.Group("/reports")
