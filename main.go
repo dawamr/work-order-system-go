@@ -41,7 +41,7 @@ func main() {
 
 	// Initialize database connection
 	database.ConnectDB()
-	database.MigrateDB()
+	// database.MigrateDB()
 
 	// Create Fiber app
 	app := fiber.New(fiber.Config{
