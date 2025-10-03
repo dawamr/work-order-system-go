@@ -7,7 +7,7 @@ import (
 	"github.com/dawamr/work-order-system-go/config"
 	// "github.com/dawamr/work-order-system-go/database"
 	_ "github.com/dawamr/work-order-system-go/docs" // Import generated Swagger docs
-	// "github.com/dawamr/work-order-system-go/routes"
+	"github.com/dawamr/work-order-system-go/routes"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
@@ -88,7 +88,7 @@ func main() {
 	app.Get("/swagger/*", fiberSwagger.WrapHandler)
 
 	// // Setup routes
-	// routes.SetupRoutes(app)
+	routes.SetupRoutes(app)
 
 	// Get port from environment variable or default to 8080
 	port := os.Getenv("PORT")
