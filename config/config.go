@@ -4,8 +4,6 @@ import (
 	"log"
 	"os"
 	"strconv"
-
-	"github.com/joho/godotenv"
 )
 
 // Config stores all configuration of the application
