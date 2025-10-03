@@ -69,20 +69,20 @@ func main() {
 	}))
 
 	// Health check endpoint (for hosting platform verification)
-	app.Get("/kaithheathcheck", func(c *fiber.Ctx) error {
-		return c.JSON(fiber.Map{
-			"status": "ok",
-			"message": "Application is running",
-			"service": "Work Order System API",
-		})
-	})
-	app.Get("/kaithhealth", func(c *fiber.Ctx) error {
-		return c.JSON(fiber.Map{
-			"status": "ok",
-			"message": "Application is running",
-			"service": "Work Order System API",
-		})
-	})
+	// app.Get("/kaithheathcheck", func(c *fiber.Ctx) error {
+	// 	return c.JSON(fiber.Map{
+	// 		"status": "ok",
+	// 		"message": "Application is running",
+	// 		"service": "Work Order System API",
+	// 	})
+	// })
+	// app.Get("/kaithhealth", func(c *fiber.Ctx) error {
+	// 	return c.JSON(fiber.Map{
+	// 		"status": "ok",
+	// 		"message": "Application is running",
+	// 		"service": "Work Order System API",
+	// 	})
+	// })
 
 	// Swagger UI route
 	app.Get("/swagger/*", fiberSwagger.WrapHandler)
