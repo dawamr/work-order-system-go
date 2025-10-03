@@ -92,16 +92,11 @@ func main() {
 
 	// Get port from environment variable or default to 8080
 	port := os.Getenv("PORT")
-	host := os.Getenv("HOST")
 	if port == "" {
 		port = "8080"
 	}
-	if host == "" {
-		host = "0.0.0.0"
-	}
 
-	// Start server - listen on 0.0.0.0 to accept connections from outside
-	addr := host + ":" + port
-	log.Printf("Starting server on %s", addr)
-	log.Fatal(app.Listen(addr))
+	// Start the server
+	log.Printf("Starting server on port %s", port)
+	log.Fatal(app.Listen(":" + port))
 }
