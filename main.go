@@ -4,8 +4,8 @@ import (
 	"log"
 	"os"
 
-	// "github.com/dawamr/work-order-system-go/config"
-	// "github.com/dawamr/work-order-system-go/database"
+	"github.com/dawamr/work-order-system-go/config"
+	"github.com/dawamr/work-order-system-go/database"
 	_ "github.com/dawamr/work-order-system-go/docs" // Import generated Swagger docs
 	// "github.com/dawamr/work-order-system-go/routes"
 	"github.com/gofiber/fiber/v2"
