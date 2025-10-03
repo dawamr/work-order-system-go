@@ -41,7 +41,15 @@ This is the backend API for the Work Order System, built with Go, GoFiber, and P
 
 ## Environment Variables
 
-Create a `.env` file in the root directory with the following variables:
+### Local Development
+
+For local development, create a `.env` file in the root directory (you can copy from `.env.example`):
+
+```bash
+cp .env.example .env
+```
+
+Then edit the `.env` file with your local configuration:
 
 ```
 # Database Configuration
@@ -59,17 +67,81 @@ TOKEN_EXPIRES_IN=24
 PORT=8080
 ```
 
+### Production Deployment
+
+**Important**: In production, **DO NOT use .env file**. Instead, set environment variables directly in your hosting platform.
+
+The application automatically detects whether to use `.env` file (development) or system environment variables (production).
+
+#### Setting Environment Variables in Production
+
+Configure these environment variables in your hosting platform (Railway, Render, Heroku, etc.):
+
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `DB_HOST` | Database host | `postgres.example.com` |
+| `DB_PORT` | Database port | `5432` |
+| `DB_USER` | Database username | `myuser` |
+| `DB_PASSWORD` | Database password | `securepassword` |
+| `DB_NAME` | Database name | `workorder` |
+| `JWT_SECRET` | JWT secret key (use strong random string) | `your-very-secure-random-string` |
+| `TOKEN_EXPIRES_IN` | Token expiration in hours | `24` |
+| `PORT` | Server port (usually auto-set by hosting) | `8080` |
+
+## Building and Deployment
+
+### Build for Production
+
+To build the application for production:
+
+```bash
+go build -tags netgo -ldflags '-s -w' -o app
+```
+
+**Build flags explained:**
+- `-tags netgo`: Use pure Go network stack (better for containerized deployments)
+- `-ldflags '-s -w'`: Strip debug information to reduce binary size
+- `-o app`: Output binary name
+
+### Running the Built Binary
+
+After building, you can run the binary directly:
+
+```bash
+./app
+```
+
+The application will:
+1. Look for a `.env` file (development mode)
+2. If no `.env` found, use system environment variables (production mode)
+3. Start the server on the configured PORT
+
+### Docker Deployment
+
+Build and run with Docker:
+
+```bash
+docker build -t work-order-system .
+docker run -p 8080:8080 \
+  -e DB_HOST=your_db_host \
+  -e DB_PORT=5432 \
+  -e DB_USER=your_db_user \
+  -e DB_PASSWORD=your_db_password \
+  -e DB_NAME=workorder \
+  -e JWT_SECRET=your_jwt_secret \
+  work-order-system
+```
+
 ## Data Seeding
 
 The application includes a data seeder to generate dummy data for testing and development purposes.
-
+c
 1. Make sure your database is running and configured correctly in the `.env` file.
 
 2. Run the seeder:
 
    ```
-   cd utils/seeder
-   go run seeder.go
+   go run utils/seeder/seeder.go
    ```
 
 The seeder will generate:

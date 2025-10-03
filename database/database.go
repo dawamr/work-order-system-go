@@ -44,16 +44,21 @@ func MigrateDB() {
 	log.Println("Running database migrations...")
 
 	// Drop existing foreign key constraints if any
-	DB.Exec(`ALTER TABLE audit_logs DROP CONSTRAINT IF EXISTS fk_audit_logs_user`)
+ 	// Auto migrate models
+ 	err := DB.AutoMigrate(
+ 		&models.User{},
+ 		&models.WorkOrder{},
+ 		&models.WorkOrderProgress{},
+ 		&models.WorkOrderStatusHistory{},
+ 		&models.AuditLog{},
+ 	)
 
-	// Auto migrate models
-	err := DB.AutoMigrate(
-		&models.User{},
-		&models.WorkOrder{},
-		&models.WorkOrderProgress{},
-		&models.WorkOrderStatusHistory{},
-		&models.AuditLog{},
-	)
+ 	if err != nil {
+ 		log.Fatalf("Failed to migrate database: %v", err)
+ 	}
+
+ 	// Drop existing foreign key constraints if any
+ 	DB.Exec(`ALTER TABLE audit_logs DROP CONSTRAINT IF EXISTS fk_audit_logs_user`)
 
 	if err != nil {
 		log.Fatalf("Failed to migrate database: %v", err)

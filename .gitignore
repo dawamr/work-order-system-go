@@ -25,7 +25,13 @@
 go.work
 
 # End of https://www.toptal.com/developers/gitignore/api/go
+
+# Environment files
 .env
+
+# Built binaries
+app
+main
 
 # PostgreSQL
 postgresql/
