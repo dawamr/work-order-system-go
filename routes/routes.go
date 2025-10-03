@@ -9,15 +9,6 @@ import (
 
 // SetupRoutes sets up all the routes for the application
 func SetupRoutes(app *fiber.App) {
-	// Health check endpoint (for hosting platform verification)
-	app.Get("/kaithheathcheck", func(c *fiber.Ctx) error {
-		return c.JSON(fiber.Map{
-			"status":  "ok",
-			"message": "Application is running",
-			"service": "Work Order System API",
-		})
-	})
-
 	// Public routes
 	auth := app.Group("/api/auth")
 	auth.Post("/login", controllers.Login)

@@ -68,6 +68,22 @@ func main() {
 		AllowMethods: "GET, POST, PUT, DELETE",
 	}))
 
+	// Health check endpoint (for hosting platform verification)
+	app.Get("/kaithheathcheck", func(c *fiber.Ctx) error {
+		return c.JSON(fiber.Map{
+			"status": "ok",
+			"message": "Application is running",
+			"service": "Work Order System API",
+		})
+	})
+	app.Get("/kaithhealth", func(c *fiber.Ctx) error {
+		return c.JSON(fiber.Map{
+			"status": "ok",
+			"message": "Application is running",
+			"service": "Work Order System API",
+		})
+	})
+
 	// Swagger UI route
 	app.Get("/swagger/*", fiberSwagger.WrapHandler)
 
@@ -76,12 +92,16 @@ func main() {
 
 	// Get port from environment variable or default to 8080
 	port := os.Getenv("PORT")
+	host := os.Getenv("HOST")
 	if port == "" {
 		port = "8080"
 	}
+	if host == "" {
+		host = "0.0.0.0"
+	}
 
 	// Start server - listen on 0.0.0.0 to accept connections from outside
-	addr := "0.0.0.0:" + port
+	addr := host + ":" + port
 	log.Printf("Starting server on %s", addr)
 	log.Fatal(app.Listen(addr))
 }
