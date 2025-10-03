@@ -37,11 +37,11 @@ import (
 
 func main() {
 	// Load configuration
-	// config.LoadConfig()
+	config.LoadConfig()
 
 	// Initialize database connection
-	// database.ConnectDB()
-	// database.MigrateDB()
+	database.ConnectDB()
+	database.MigrateDB()
 
 	// Create Fiber app
 	app := fiber.New(fiber.Config{
