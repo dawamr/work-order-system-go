@@ -27,15 +27,6 @@ var AppConfig Config
 func LoadConfig() {
 	// Try to load .env file (optional, mainly for local development)
 	// In production, use actual environment variables set by hosting platform
-	if _, err := os.Stat(".env"); err == nil {
-		if err := godotenv.Load(); err != nil {
-			log.Println("Warning: Failed to load .env file:", err)
-		} else {
-			log.Println("Loaded configuration from .env file (development mode)")
-		}
-	} else {
-		log.Println("No .env file found, using system environment variables (production mode)")
-	}
 
 	// Read from environment variables (works both with .env and system env vars)
 	AppConfig = Config{
