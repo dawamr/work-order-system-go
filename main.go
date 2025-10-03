@@ -80,6 +80,8 @@ func main() {
 		port = "8080"
 	}
 
-	// Start server
-	log.Fatal(app.Listen(":" + port))
+	// Start server - listen on 0.0.0.0 to accept connections from outside
+	addr := "0.0.0.0:" + port
+	log.Printf("Starting server on %s", addr)
+	log.Fatal(app.Listen(addr))
 }
