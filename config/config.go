@@ -37,6 +37,8 @@ func LoadConfig() {
 		TokenExpiresIn: getEnvAsInt("TOKEN_EXPIRES_IN", 24), // hours
 	}
 
+	log.Println(AppConfig)
+
 	// Validate critical configuration
 	if AppConfig.JWTSecret == "your-secret-key" {
 		log.Println("WARNING: Using default JWT secret! Please set JWT_SECRET environment variable in production!")
