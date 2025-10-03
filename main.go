@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"github.com/dawamr/work-order-system-go/config"
-	// "github.com/dawamr/work-order-system-go/database"
+	"github.com/dawamr/work-order-system-go/database"
 	_ "github.com/dawamr/work-order-system-go/docs" // Import generated Swagger docs
 	"github.com/dawamr/work-order-system-go/routes"
 	"github.com/gofiber/fiber/v2"
@@ -40,8 +40,10 @@ func main() {
 	config.LoadConfig()
 
 	// Initialize database connection
-	// database.ConnectDB()
-	// database.MigrateDB()
+	database.ConnectDB()
+	// Note: Migration is NOT run automatically in production
+	// Run migration separately using: go run cmd/migrate/migrate.go
+	// Or build: go build -o migrate cmd/migrate/migrate.go && ./migrate
 
 	// Create Fiber app
 	app := fiber.New(fiber.Config{
@@ -68,26 +70,10 @@ func main() {
 		AllowMethods: "GET, POST, PUT, DELETE",
 	}))
 
-	// Health check endpoint (for hosting platform verification)
-	app.Get("/kaithheathcheck", func(c *fiber.Ctx) error {
-		return c.JSON(fiber.Map{
-			"status": "ok",
-			"message": "Application is running",
-			"service": "Work Order System API",
-		})
-	})
-	// app.Get("/kaithhealth", func(c *fiber.Ctx) error {
-	// 	return c.JSON(fiber.Map{
-	// 		"status": "ok",
-	// 		"message": "Application is running",
-	// 		"service": "Work Order System API",
-	// 	})
-	// })
-
 	// Swagger UI route
 	app.Get("/swagger/*", fiberSwagger.WrapHandler)
 
-	// // Setup routes
+	// Setup routes (includes health check endpoint)
 	routes.SetupRoutes(app)
 
 	// Get port from environment variable or default to 8080
@@ -96,7 +82,8 @@ func main() {
 		port = "8080"
 	}
 
-	// Start the server
-	log.Printf("Starting server on port %s", port)
-	log.Fatal(app.Listen(":" + port))
+	// Start server - listen on 0.0.0.0 to accept connections from outside
+	addr := "0.0.0.0:" + port
+	log.Printf("Starting server on %s", addr)
+	log.Fatal(app.Listen(addr))
 }
